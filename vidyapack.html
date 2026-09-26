@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>VidyaPack</title>
+<meta name="description" content="Whole lessons that travel over SMS, WhatsApp or QR — learn offline with zero data cost.">
+<style>
+/* ============ Design Tokens ============ */
+:root {
+  --paper: #140f2d;
+  --paper-2: #221a4d;
+  --card: #1e1750;
+  --card-glass: rgba(30, 23, 80, 0.85);
+  --ink: #f8fafc;
+  --ink-soft: #b7aee8;
+  --line: #453a8f;
+  --indigo: #818cf8;
+  --indigo-soft: #3730a3;
+  --saffron: #fbbf24;
+  --saffron-soft: #78350f;
+  --pink: #f472b6;
+  --teal: #2dd4bf;
+  --green: #34d399;
+  --green-soft: #064e3b;
+  --red: #fb7185;
+  --red-soft: #7f1d1d;
+  --code-bg: #020617;
+  --code-fg: #f1f5f9;
+  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --glow-indigo: 0 0 20px rgba(129, 140, 248, 0.4);
+  --glow-saffron: 0 0 20px rgba(251, 191, 36, 0.4);
+  --radius: 14px;
+  --font-body: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --font-head: Georgia, "Iowan Old Style", serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --paper: #fdf4ff;
+    --paper-2: #fce7f3;
+    --card: #ffffff;
+    --card-glass: rgba(255, 255, 255, 0.9);
+    --ink: #1e1b4b;
+    --ink-soft: #6b5b95;
+    --line: #ddd6fe;
+    --indigo: #6366f1;
+    --indigo-soft: #e0e7ff;
+    --saffron: #d97706;
+    --saffron-soft: #fef3c7;
+    --pink: #db2777;
+    --teal: #0d9488;
+    --green: #059669;
+    --green-soft: #d1fae5;
+    --red: #dc2626;
+    --red-soft: #fee2e2;
+    --code-bg: #1e1b4b;
+    --code-fg: #f8fafc;
+    --shadow: 0 10px 25px -5px rgba(99, 40, 170, 0.12), 0 8px 10px -6px rgba(99, 40, 170, 0.06);
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { margin: 0; padding: 0; }
+body {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(244, 114, 182, 0.25), transparent 42%),
+    radial-gradient(circle at 92% 12%, rgba(45, 212, 191, 0.22), transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(251, 191, 36, 0.16), transparent 50%),
+    var(--paper);
+  background-attachment: fixed;
+  color: var(--ink);
+  font: 16px/1.55 var(--font-body);
+  min-height: 100vh;
+}
+body.lowres { background: var(--paper) !important; }
+body.lowres * { animation: none !important; box-shadow: none !important; }
+a { color: var(--indigo); text-decoration: none; }
+h1, h2, h3 { font-family: var(--font-head); line-height: 1.2; margin: 0; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.05rem; }
+:focus-visible { outline: 3px solid var(--saffron); outline-offset: 2px; border-radius: 6px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+
+/* ============ Header ============ */
+header.top {
+  border-bottom: 2px dashed var(--line);
+  background: var(--card-glass);
+  backdrop-filter: blur(10px);
+  position: sticky; top: 0; z-index: 30;
+}
+.top .wrap { display: flex; align-items: center; gap: 14px; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; }
+.stamp {
+  width: 50px; height: 50px; flex: none;
+  border: 2.5px dashed var(--saffron); border-radius: 50%;
+  display: grid; place-items: center;
+  font: 700 17px/1 var(--font-head); color: var(--saffron);
+  transform: rotate(-12deg);
+}
+.brand { display: flex; flex-direction: column; min-width: 0; }
+.brand h1 { font-size: 1.5rem; letter-spacing: .3px; color: var(--ink); }
+.brand p { margin: 0; color: var(--ink-soft); font-size: .88rem; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge {
+  font: 600 .72rem/1 var(--font-body); text-transform: uppercase; letter-spacing: .6px;
+  padding: 6px 9px; border-radius: 999px; border: 1.5px solid currentColor;
+}
+.badge.track { color: var(--indigo); }
+.badge.sdg { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+.top-tools { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* ============ Tabs Navigation ============ */
+nav.tabs {
+  display: flex; gap: 8px; border-bottom: 2px solid var(--line);
+  margin-top: 18px; margin-bottom: 22px; flex-wrap: wrap;
+}
+nav.tabs button[role="tab"] {
+  background: transparent; border: none; border-bottom: 3px solid transparent;
+  padding: 10px 16px; font: 600 0.98rem var(--font-body); color: var(--ink-soft);
+  cursor: pointer; transition: all 0.2s ease; margin-bottom: -2px;
+}
+nav.tabs button[role="tab"]:hover { color: var(--ink); }
+nav.tabs button[role="tab"][aria-selected="true"] {
+  color: var(--indigo); border-bottom-color: var(--indigo);
+}
+
+/* ============ Cards & Buttons ============ */
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+  margin-bottom: 20px; transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 18px; font: 600 0.92rem var(--font-body); border-radius: 10px;
+  border: 1px solid var(--line); background: var(--paper-2); color: var(--ink);
+  cursor: pointer; transition: all 0.2s ease; text-decoration: none;
+}
+.btn:hover { transform: translateY(-1px); border-color: var(--indigo); }
+.btn.primary, .btn.indigo { background: var(--indigo); color: #ffffff; border-color: var(--indigo); }
+.btn.primary:hover, .btn.indigo:hover { background: color-mix(in srgb, var(--indigo) 85%, #000); }
+.btn.saffron { background: var(--saffron); color: #ffffff; border-color: var(--saffron); }
+.btn.ghost { background: transparent; border-color: var(--line); }
+.btn.small { padding: 6px 12px; font-size: 0.82rem; border-radius: 8px; }
+
+/* ============ Form Fields & Code Boxes ============ */
+.field { display: block; width: 100%; margin-top: 8px; margin-bottom: 12px; }
+label.field { font-weight: 600; font-size: 0.9rem; color: var(--ink); margin-bottom: 4px; }
+input.field, textarea.field, select.field, select {
+  width: 100%; padding: 10px 14px; font: inherit; background: var(--paper-2);
+  color: var(--ink); border: 1px solid var(--line); border-radius: 8px;
+  transition: border-color 0.2s ease;
+}
+input.field:focus, textarea.field:focus, select:focus {
+  outline: none; border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+.code-box {
+  width: 100%; font-family: var(--font-mono); font-size: 0.88rem;
+  background: var(--code-bg); color: var(--code-fg); padding: 12px;
+  border: 1px solid var(--line); border-radius: 8px; resize: vertical;
+}
+
+/* ============ Phone Screen & SMS Preview ============ */
+.phone-frame {
+  background: #020617; border: 12px solid #1e293b; border-radius: 28px;
+  padding: 16px; width: 100%; max-width: 380px; margin: 0 auto; box-shadow: var(--shadow);
+}
+.phone-screen {
+  background: #0f172a; border-radius: 12px; padding: 12px; height: 320px;
+  overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+}
+.sms {
+  background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 10px; font-size: 0.85rem;
+}
+.sms-from { font-weight: 700; color: var(--saffron); font-size: 0.75rem; margin-bottom: 4px; }
+.sms-body { color: #f8fafc; font-family: var(--font-mono); white-space: pre-wrap; line-height: 1.4; }
+.sms-meta { font-size: 0.7rem; color: #94a3b8; text-align: right; margin-top: 4px; }
+
+/* ============ Library & Table Styles ============ */
+.lib-item {
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px;
+  padding: 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px;
+}
+.pill { font-size: 0.72rem; padding: 3px 8px; border-radius: 999px; background: var(--indigo-soft); color: var(--indigo); font-weight: 600; width: fit-content; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; }
+th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { color: var(--ink-soft); font-weight: 600; }
+.status { padding: 3px 8px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; }
+.status.ok { background: var(--green-soft); color: var(--green); }
+.status.help { background: var(--red-soft); color: var(--red); }
+.mini-bar { display: inline-block; width: 50px; height: 6px; background: var(--line); border-radius: 3px; margin-left: 6px; vertical-align: middle; overflow: hidden; }
+.mini-bar i { display: block; height: 100%; background: var(--indigo); }
+#toast {
+  position: fixed; bottom: 20px; right: 20px; background: var(--ink); color: var(--paper);
+  padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 0.9rem;
+  box-shadow: var(--shadow); z-index: 100; display: none;
+}
+#toast.show { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="top">
+    <div class="wrap">
+      <div class="stamp">VP</div>
+      <div class="brand">
+        <h1 id="appName">VidyaPack</h1>
+        <p id="appTagline">Whole lessons that travel over SMS, WhatsApp or QR — offline with zero data cost</p>
+      </div>
+      <div class="badges">
+        <span class="badge track" id="trackBadge">TRACK 3 · EDUCATION FOR ALL</span>
+        <span class="badge sdg">SDG 4</span>
+      </div>
+      <div class="top-tools">
+        <label for="uiLang" class="sr-only">Interface language</label>
+        <select id="uiLang" aria-label="Interface language"></select>
+        <label style="font-size:0.85rem; display:flex; align-items:center; gap:6px; cursor:pointer;">
+          <input type="checkbox" id="lowres"> Low-resource mode
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+
+    <!-- First-Time Quick Start Guide Banner -->
+    <section class="quick-guide-card" id="quickGuideBanner" style="background: linear-gradient(135deg, color-mix(in srgb, var(--indigo) 15%, var(--card)), var(--card)); border: 2px dashed var(--indigo); border-radius: var(--radius); padding: 18px 20px; margin-top:18px; margin-bottom: 22px; box-shadow: var(--shadow);">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-size:1.15rem; color:var(--indigo); display:flex; align-items:center; gap:8px;">
+          <span>💡</span> <span>How VidyaPack Works (3 Simple Steps)</span>
+        </h2>
+        <button class="btn small ghost" type="button" onclick="document.getElementById('quickGuideBanner').hidden=true">✕ Hide</button>
+      </div>
+      <div class="guide-steps" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px; margin-top:14px;">
+        <div class="step-box" style="background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; gap:12px; align-items:flex-start;">
+          <div style="font-size:1.8rem; background:var(--indigo-soft); width:44px; height:44px; border-radius:50%; display:grid; place-items:center; flex:none;">📱</div>
+          <div>
+            <h4 style="margin:0 0 4px 0; color:var(--indigo);">1. Create or Pick a Lesson</h4>
+            <p style="margin:0; font-size:0.85rem; color:var(--ink-soft);">Teachers write a short lesson. It turns into a tiny text code.</p>
+          </div>
+        </div>
+        <div class="step-box" style="background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; gap:12px; align-items:flex-start;">
+          <div style="font-size:1.8rem; background:var(--indigo-soft); width:44px; height:44px; border-radius:50%; display:grid; place-items:center; flex:none;">📩</div>
+          <div>
+            <h4 style="margin:0 0 4px 0; color:var(--indigo);">2. Send to Students</h4>
+            <p style="margin:0; font-size:0.85rem; color:var(--ink-soft);">Share via SMS, WhatsApp or QR code — works on ANY phone with ZERO data cost!</p>
+          </div>
+        </div>
+        <div class="step-box" style="background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; gap:12px; align-items:flex-start;">
+          <div style="font-size:1.8rem; background:var(--indigo-soft); width:44px; height:44px; border-radius:50%; display:grid; place-items:center; flex:none;">✅</div>
+          <div>
+            <h4 style="margin:0 0 4px 0; color:var(--indigo);">3. Students Read & Answer</h4>
+            <p style="margin:0; font-size:0.85rem; color:var(--ink-soft);">Students read offline, answer questions, and reply to auto-grade!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURED 3D VIRTUAL SCIENCE LAB WORKBENCH -->
+    <section class="card" style="background: linear-gradient(135deg, color-mix(in srgb, var(--indigo) 20%, var(--card)), var(--card)); border: 2.5px solid var(--indigo); box-shadow: var(--glow-indigo); margin-bottom: 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+        <h2 style="color:var(--ink); font-size:1.35rem; display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.6rem;">🔬</span> <span>3D Virtual Science Lab Workbench</span>
+          <span style="background:var(--indigo); color:#fff; font-size:0.75rem; padding:3px 10px; border-radius:999px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Featured Lab</span>
+        </h2>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn small primary" id="btnTopLabWater">🧪 Water Cycle</button>
+          <button type="button" class="btn small ghost" id="btnTopLabCircuit">⚡ Circuit & Ohm's Law</button>
+          <button type="button" class="btn small ghost" id="btnTopLabPh">🧪 Acid-Base pH Test</button>
+        </div>
+      </div>
+      <p style="margin:0 0 14px 0; color:var(--ink-soft); font-size:0.92rem;">Interactive hands-on science experiments for students and teachers — works 100% offline with zero mobile data!</p>
+
+      <div style="background:#0d1117; border-radius:12px; position:relative; overflow:hidden; border:2px solid #30363d; min-height:260px; display:flex; flex-direction:column; align-items:center;">
+        <canvas id="topVirtualLabCanvas" width="700" height="240" style="width:100%; height:240px; display:block;"></canvas>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; background:rgba(255, 255, 255, 0.06); padding:12px 16px; width:100%;">
+          <label style="color:#c9d1d9; font-size:0.88rem; font-weight:600;" id="topLabControlLabel">Burner Heat (°C):</label>
+          <input type="range" id="topVirtualLabSlider" min="0" max="100" value="50" style="flex:1; cursor:pointer;">
+          <span id="topVirtualLabReadout" style="font-family:var(--font-mono); font-size:0.9rem; color:#58a6ff; background:rgba(0,0,0,0.5); padding:4px 12px; border-radius:6px; font-weight:600;">Heat: 50°C</span>
+          <button type="button" class="btn small saffron" id="btnTopRunReaction">▶️ Run Reaction</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-studio" aria-controls="panel-studio" aria-selected="true">Teacher Studio</button>
+      <button role="tab" id="tab-learn" aria-controls="panel-learn" aria-selected="false">Student App</button>
+      <button role="tab" id="tab-dash" aria-controls="panel-dash" aria-selected="false">Class Dashboard</button>
+    </nav>
+
+    <!-- Tab 1: Studio -->
+    <section id="panel-studio" role="tabpanel" aria-labelledby="tab-studio">
+      <div class="grid-2">
+        <div class="card">
+          <h2>Lesson Editor</h2>
+          <p class="muted">Create or edit a lesson pack below:</p>
+
+          <label for="startFrom" class="field">Start from sample</label>
+          <select id="startFrom" class="field"></select>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>
+              <label for="lessonId" class="field">Lesson ID</label>
+              <input type="text" id="lessonId" class="field" placeholder="water-cycle-01">
+            </div>
+            <div>
+              <label for="lessonSms" class="field">SMS Shortcode</label>
+              <input type="text" id="lessonSms" class="field" placeholder="WC1">
+            </div>
+          </div>
+
+          <label for="lessonSubject" class="field">Subject & Class</label>
+          <input type="text" id="lessonSubject" class="field" placeholder="Science · Class 5">
+
+          <div id="langTabs" style="display:flex; gap:6px; margin:12px 0; flex-wrap:wrap;"></div>
+
+          <label for="lTitle" class="field">Lesson Title</label>
+          <input type="text" id="lTitle" class="field">
+
+          <label for="lExplainer" class="field">Main Explainer Text <span id="explainerCount" class="muted"></span></label>
+          <textarea id="lExplainer" rows="5" class="field"></textarea>
+
+          <label for="lPoints" class="field">Key Takeaway Points (one per line)</label>
+          <textarea id="lPoints" rows="4" class="field"></textarea>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+            <h3>Quiz Questions</h3>
+            <button class="btn small ghost" type="button" id="addQ">+ Add Question</button>
+          </div>
+          <p class="muted" id="qCountNote"></p>
+          <div id="qList"></div>
+
+          <div class="btn-row" style="margin-top:20px;">
+            <button class="btn primary" type="button" id="packBtn">⚡ Generate Pack Code</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Pack Output & Share</h2>
+          <label for="teacherContact" class="field">Your WhatsApp/SMS number (so doubts reach you)</label>
+          <input type="tel" id="teacherContact" class="field" placeholder="+91XXXXXXXXXX">
+          <p class="muted">Send this text code or QR code to students:</p>
+          <textarea id="packOut" rows="4" class="code-box" readonly></textarea>
+          <div class="btn-row">
+            <button class="btn small" type="button" id="copyPack">📋 Copy Code</button>
+            <button class="btn small" type="button" id="qrPack">📷 Show QR Code</button>
+            <button class="btn small" type="button" id="sharePackWa">📲 Send via WhatsApp</button>
+            <button class="btn small" type="button" id="sharePackSms">✉️ Send via SMS</button>
+            <button class="btn small saffron" type="button" id="testPack">🧪 Test in Student View</button>
+          </div>
+          <div id="qrSlot" style="margin-top:14px; text-align:center;"></div>
+
+          <h3 style="margin-top:22px;">Data Cost Savings Meter</h3>
+          <div style="margin-top:8px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+              <span>VidyaPack Text Code: <b id="mPackLbl">0 B</b></span>
+              <span>Video Lesson: <b id="mVideoLbl">45 MB</b></span>
+            </div>
+            <div style="height:10px; background:var(--line); border-radius:5px; overflow:hidden; margin-top:4px;">
+              <div id="mPackFill" style="height:100%; width:5%; background:var(--green);"></div>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; font-size:0.88rem;">
+            <div style="background:var(--paper-2); padding:10px; border-radius:8px;">
+              <div style="font-weight:700; color:var(--indigo);" id="sSms">1</div>
+              <div class="muted">SMS Messages</div>
+            </div>
+            <div style="background:var(--paper-2); padding:10px; border-radius:8px;">
+              <div style="font-weight:700; color:var(--green);" id="sSmaller">1000×</div>
+              <div class="muted">Smaller than Video</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Student View -->
+    <section id="panel-learn" role="tabpanel" aria-labelledby="tab-learn" hidden>
+      <div class="card">
+        <h3>📥 Paste the code your teacher sent you</h3>
+        <p class="muted">Paste the code (starting with VP1: or VP0:) to open your lesson offline:</p>
+        <textarea id="codeIn" rows="3" class="code-box" placeholder="VP1:…"></textarea>
+        <div class="btn-row">
+          <button class="btn primary" id="openCode" type="button">🚀 Open Lesson from Teacher</button>
+          <button class="btn ghost" id="samplePack" type="button">✨ Try Sample Lesson</button>
+        </div>
+      </div>
+
+      <div class="card" id="myLibraryCard">
+        <h3>📚 Saved Offline Lessons</h3>
+        <div id="libList"></div>
+      </div>
+
+      <div class="card" id="lessonView" hidden>
+        <button class="btn small ghost" type="button" id="backToLib">← Back to library</button>
+        <h2 id="viewTitle" style="margin-top:12px;"></h2>
+        <span id="viewSubject" class="pill" style="margin:8px 0;"></span>
+        <div class="btn-row">
+          <button class="btn small ghost" type="button" id="speakBtn">🔊 Read Aloud</button>
+          <button class="btn small ghost" type="button" id="shareBtn">📤 Share Onward</button>
+        </div>
+
+        <p id="viewExplainer" style="font-size:1.05rem; line-height:1.6; margin-top:16px;"></p>
+        <ul id="viewPoints" style="line-height:1.6;"></ul>
+
+        <h3 style="margin-top:24px;">Quiz Questions</h3>
+        <form id="quizForm">
+          <div id="quizQuestions"></div>
+          <button class="btn primary" type="submit" style="margin-top:16px;">Check Answers & Get Score</button>
+        </form>
+
+        <div id="resultBox" style="margin-top:20px;"></div>
+      </div>
+
+      <!-- Doubt Clearing Zone -->
+      <section class="card" id="doubtSection" style="background: linear-gradient(135deg, color-mix(in srgb, var(--saffron) 15%, var(--card)), var(--card)); border: 2px solid var(--saffron); margin-top:24px;">
+        <h3 style="color:var(--saffron); display:flex; align-items:center; gap:8px;">
+          <span>💬</span> <span>Send a Doubt to Your Teacher</span>
+        </h3>
+        <p class="muted" style="margin:4px 0 12px 0;">Pick a common question or type your own — it sends as a real WhatsApp or SMS message to your teacher's phone.</p>
+        <div id="presetDoubts" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input type="text" id="customDoubtIn" class="field" style="flex:1; min-width:220px;" placeholder="Type your doubt here (e.g. why is 1/2 equal to 2/4?)...">
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn saffron" id="sendDoubtWa">📲 Send via WhatsApp</button>
+          <button type="button" class="btn ghost" id="sendDoubtSms">✉️ Send via SMS</button>
+        </div>
+        <div id="doubtAnsBox" style="background:var(--paper); border-left:4px solid var(--saffron); border-radius:8px; padding:14px; margin-top:14px;" hidden></div>
+      </section>
+    </section>
+
+    <!-- Tab 3: Dashboard -->
+    <section id="panel-dash" role="tabpanel" aria-labelledby="tab-dash" hidden>
+      <div class="card">
+        <h2>Class Results & Reach Analytics</h2>
+        <p class="muted">Paste student grade receipts or SMS reply messages below to analyze class performance:</p>
+        <textarea id="receiptsIn" rows="4" class="code-box" placeholder="Paste grade receipts (VR1:…) here…"></textarea>
+        <div class="btn-row">
+          <button class="btn primary" type="button" id="analyze">📊 Analyze Class Results</button>
+          <button class="btn ghost" type="button" id="loadSampleReceipts">✨ Load Sample Data</button>
+          <button class="btn ghost" type="button" id="clearReceipts">Clear</button>
+        </div>
+      </div>
+      <div id="dashOut"></div>
+
+      <div class="card" style="margin-top:20px; border-color:var(--saffron);">
+        <h2>📥 Doubts Inbox</h2>
+        <p class="muted">Students' doubts arrive as real WhatsApp/SMS messages on your phone. Paste any you want logged here (forward or copy-paste the text):</p>
+        <textarea id="doubtsIn" rows="4" class="code-box" placeholder="Paste forwarded doubt messages here…"></textarea>
+        <div class="btn-row">
+          <button class="btn primary" type="button" id="parseDoubts">📋 Log Doubts</button>
+          <button class="btn ghost" type="button" id="clearDoubts">Clear</button>
+        </div>
+        <div id="doubtsOut" style="margin-top:14px;"></div>
+        <h3 style="margin-top:20px;">Quick-Reply Reference</h3>
+        <p class="muted" style="margin-top:0;">Common doubts with ready answers you can copy into your reply:</p>
+        <div id="doubtBankOut"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* CONFIG & DATA */
+const CONFIG = {
+  appName: "VidyaPack",
+  tagline: "Whole lessons that travel over SMS, WhatsApp or QR — offline with zero data cost",
+  trackLabel: "TRACK 3 · EDUCATION FOR ALL",
+  defaultUiLang: "en",
+  costModel: { videoLessonMB: 45, smsSingleChars: 160, smsPartChars: 153, smsCostINR: 0.15, dataCostPerGB_INR: 15 },
+  needsHelpBelow: 0.6,
+  languages: [
+    { code: "en", name: "English", speech: "en-IN" },
+    { code: "hi", name: "हिन्दी", speech: "hi-IN" }
+  ],
+  ui: {
+    en: { copied: "Copied to clipboard!", invalid: "Invalid code!" },
+    hi: { copied: "कॉपी हो गया!", invalid: "गलत कोड!" }
+  },
+  doubts: {
+    "water-cycle-01": [
+      {
+        q_en: "Why does it rain when clouds get heavy?",
+        q_hi: "जब बादल भारी हो जाते हैं तो बारिश क्यों होती है?",
+        a_en: "When water vapour cools down in the sky, it turns into tiny drops of water. When billions of these drops gather, the cloud becomes too heavy to float in the air, so gravity pulls the water down as rain!",
+        a_hi: "जब आकाश में जलवाष्प ठंडा होता है, तो यह पानी की छोटी बूंदों में बदल जाता है। जब अरबों बूंदें जमा हो जाती हैं, तो बादल भारी होकर बारिश के रूप में गिरता है!"
+      },
+      {
+        q_en: "Does water ever disappear completely?",
+        q_hi: "क्या पानी कभी पूरी तरह से गायब हो जाता है?",
+        a_en: "No! Water never disappears from Earth. It only changes form — liquid water becomes invisible gas (vapour) when heated, and turns back to water or ice when cooled.",
+        a_hi: "नहीं! पृथ्वी से पानी कभी गायब नहीं होता। यह केवल रूप बदलता है — गर्म होने पर भाप बनता है और ठंडा होने पर पानी बन जाता है।"
+      }
+    ],
+    "fractions-01": [
+      {
+        q_en: "Why is 1/3 bigger than 1/8?",
+        q_hi: "1/3 रोटी 1/8 रोटी से बड़ी क्यों है?",
+        a_en: "Think of a single roti! If you divide 1 roti among 3 friends, everyone gets a LARGE piece. If you divide the same 1 roti among 8 friends, everyone gets a very SMALL piece!",
+        a_hi: "एक रोटी के बारे में सोचें! अगर आप 1 रोटी 3 दोस्तों में बांटते हैं तो बड़ा टुकड़ा मिलता है। 8 दोस्तों में बांटने पर बहुत छोटा टुकड़ा मिलता है!"
+      }
+    ]
+  },
+  lessons: [
+    {
+      id: "water-cycle-01", smsCode: "WC1", subject: "Science · Class 5", answers: [1, 1, 2, 1],
+      content: {
+        en: {
+          title: "The Water Cycle",
+          explainer: "Water on Earth keeps moving in a loop called the water cycle. The Sun heats water in rivers, lakes and oceans and turns it into water vapour (evaporation). The vapour rises, cools and forms clouds (condensation). When clouds get heavy, water falls as rain, snow or hail (precipitation). The water flows back into rivers and oceans or soaks into the ground (collection), and the cycle starts again.",
+          points: [
+            "Evaporation: the Sun turns water into vapour",
+            "Condensation: vapour cools and forms clouds",
+            "Precipitation: rain, snow or hail falls",
+            "Collection: water returns to rivers, oceans and ground"
+          ],
+          questions: [
+            { q: "What turns water into vapour?", options: ["Wind", "The Sun's heat", "The Moon", "Clouds"] },
+            { q: "Clouds form during which step?", options: ["Evaporation", "Condensation", "Precipitation", "Collection"] },
+            { q: "Rain, snow and hail are examples of:", options: ["Collection", "Evaporation", "Precipitation", "Condensation"] },
+            { q: "Where does rainwater go after it falls?", options: ["Back to the Sun", "Rivers, oceans and the ground", "It disappears forever", "Straight into the clouds"] }
+          ]
+        },
+        hi: {
+          title: "जल चक्र",
+          explainer: "पृथ्वी पर पानी लगातार एक चक्र में घूमता रहता है, जिसे जल चक्र कहते हैं। सूरज नदियों, झीलों और समुद्रों के पानी को गर्म करता है, जिससे वह भाप बन जाता है (वाष्पीकरण)। भाप ऊपर उठकर ठंडी होती है और बादल बनाती है (संघनन)। जब बादल भारी हो जाते हैं, तो पानी बारिश के रूप में गिरता है (वर्षण)। यह पानी फिर नदियों और समुद्रों में बह जाता है (संग्रहण)।",
+          points: [
+            "वाष्पीकरण: सूरज पानी को भाप में बदलता है",
+            "संघनन: भाप ठंडी होकर बादल बनती है",
+            "वर्षण: बारिश, बर्फ या ओले गिरते हैं",
+            "संग्रहण: पानी नदियों और समुद्रों में लौटता है"
+          ],
+          questions: [
+            { q: "पानी को भाप में कौन बदलता है?", options: ["हवा", "सूरज की गर्मी", "चाँद", "बादल"] },
+            { q: "बादल किस चरण में बनते हैं?", options: ["वाष्पीकरण", "संघनन", "वर्षण", "संग्रहण"] },
+            { q: "बारिश, बर्फ और ओले किसके उदाहरण हैं?", options: ["संग्रहण", "वाष्पीकरण", "वर्षण", "संघनन"] },
+            { q: "गिरने के बाद बारिश का पानी कहाँ जाता है?", options: ["वापस सूरज में", "नदियों, समुद्रों और ज़मीन में", "गायब हो जाता है", "सीधे बादलों में"] }
+          ]
+        }
+      }
+    },
+    {
+      id: "fractions-01", smsCode: "FR1", subject: "Maths · Class 4", answers: [1, 1, 2, 1],
+      content: {
+        en: {
+          title: "Understanding Fractions",
+          explainer: "A fraction shows a part of a whole. In 3/4, the bottom number (denominator) tells how many equal parts the whole is cut into, and the top number (numerator) tells how many parts we take. If a roti is cut into 4 equal pieces and you eat 3, you ate 3/4 of it.",
+          points: [
+            "Numerator (top): the parts we take",
+            "Denominator (bottom): total equal parts",
+            "1/2 = 2/4 are equivalent fractions"
+          ],
+          questions: [
+            { q: "In 3/5, what is the denominator?", options: ["3", "5", "8", "15"] },
+            { q: "Which fraction equals 1/2?", options: ["1/3", "2/4", "2/3", "3/4"] },
+            { q: "A roti is cut into 8 equal parts. You eat 2. What fraction did you eat?", options: ["2/6", "8/2", "2/8", "6/8"] },
+            { q: "Which piece is bigger?", options: ["1/8 of a roti", "1/3 of a roti", "1/6 of a roti", "1/10 of a roti"] }
+          ]
+        }
+      }
+    }
+  ]
+};
+
+/* DOM Helpers & State */
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const S = {
+  uiLang: "en", draft: null, editLang: "en", lastPack: null, current: null, viewLang: "en"
+};
+
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg; el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2400);
+}
+
+/* Tab Switching */
+function switchTab(name) {
+  $$("nav.tabs button[role=tab]").forEach(b => {
+    const on = b.id === "tab-" + name;
+    b.setAttribute("aria-selected", on);
+    $("#" + b.getAttribute("aria-controls")).hidden = !on;
+  });
+}
+
+/* TOP FEATURED VIRTUAL SCIENCE LAB ENGINE */
+let topLabMode = "water";
+let topLabAnimId = null;
+
+function initTopVirtualLab() {
+  const canvas = $("#topVirtualLabCanvas");
+  if (!canvas) return;
+  const slider = $("#topVirtualLabSlider");
+  if (slider) slider.addEventListener("input", updateTopLabReadout);
+
+  $("#btnTopLabWater").addEventListener("click", () => setTopLabMode("water", $("#btnTopLabWater"), [$("#btnTopLabCircuit"), $("#btnTopLabPh")]));
+  $("#btnTopLabCircuit").addEventListener("click", () => setTopLabMode("circuit", $("#btnTopLabCircuit"), [$("#btnTopLabWater"), $("#btnTopLabPh")]));
+  $("#btnTopLabPh").addEventListener("click", () => setTopLabMode("ph", $("#btnTopLabPh"), [$("#btnTopLabWater"), $("#btnTopLabCircuit")]));
+
+  $("#btnTopRunReaction").addEventListener("click", () => toast("Reaction Triggered! Observing changes..."));
+
+  updateTopLabReadout();
+  startTopLabLoop();
+}
+
+function setTopLabMode(mode, activeBtn, inactiveBtns) {
+  topLabMode = mode;
+  if (activeBtn) activeBtn.className = "btn small primary";
+  inactiveBtns.forEach(b => { if (b) b.className = "btn small ghost"; });
+  updateTopLabReadout();
+}
+
+function updateTopLabReadout() {
+  const slider = $("#topVirtualLabSlider");
+  const readout = $("#topVirtualLabReadout");
+  const label = $("#topLabControlLabel");
+  if (!slider || !readout) return;
+  const val = Number(slider.value);
+
+  if (topLabMode === "water") {
+    readout.textContent = `Heat: ${val}°C`;
+    if (label) label.textContent = "Burner Heat (°C):";
+  } else if (topLabMode === "circuit") {
+    const v = (val / 100 * 12).toFixed(1);
+    readout.textContent = `Voltage: ${v}V | Current: ${(v / 10).toFixed(2)}A`;
+    if (label) label.textContent = "Battery Voltage (V):";
+  } else if (topLabMode === "ph") {
+    const ph = (val / 100 * 14).toFixed(1);
+    readout.textContent = `pH Level: ${ph} (${ph < 7 ? "Acidic" : ph > 7 ? "Alkaline" : "Neutral"})`;
+    if (label) label.textContent = "Reagent Dropper (pH):";
+  }
+}
+
+function startTopLabLoop() {
+  let frame = 0;
+  function render() {
+    frame++; drawTopLabCanvas(frame); topLabAnimId = requestAnimationFrame(render);
+  }
+  cancelAnimationFrame(topLabAnimId); render();
+}
+
+function drawTopLabCanvas(frame) {
+  const canvas = $("#topVirtualLabCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  const slider = $("#topVirtualLabSlider");
+  const val = slider ? Number(slider.value) : 50;
+
+  ctx.clearRect(0, 0, w, h);
+
+  if (topLabMode === "water") {
+    ctx.fillStyle = "#0f172a"; ctx.fillRect(0, 0, w, h);
+    ctx.beginPath(); ctx.arc(w - 70, 45, 26, 0, Math.PI * 2); ctx.fillStyle = "#f59e0b"; ctx.fill();
+    ctx.fillStyle = val > 70 ? "#475569" : "#cbd5e1";
+    ctx.beginPath(); ctx.arc(120, 50, 25, 0, Math.PI * 2); ctx.arc(150, 40, 30, 0, Math.PI * 2); ctx.arc(180, 50, 25, 0, Math.PI * 2); ctx.fill();
+
+    const waterY = h - 60 + (100 - val) * 0.2;
+    ctx.fillStyle = "#2563eb"; ctx.fillRect(w / 2 - 75, waterY, 150, h - waterY - 20);
+    ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 3; ctx.strokeRect(w / 2 - 75, h - 110, 150, 90);
+
+    if (val > 20) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+      for (let i = 0; i < 7; i++) {
+        ctx.beginPath(); ctx.arc(w / 2 - 55 + (i * 18), (waterY - (frame * 2 + i * 14) % 80), 3 + (i % 3), 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    ctx.fillStyle = "#f8fafc"; ctx.font = "bold 13px system-ui";
+    ctx.fillText("EVAPORATION, CONDENSATION & PRECIPITATION 3D LAB", 15, 25);
+
+  } else if (topLabMode === "circuit") {
+    ctx.fillStyle = "#020617"; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(110, 60); ctx.lineTo(w - 110, 60); ctx.lineTo(w - 110, h - 60); ctx.lineTo(110, h - 60); ctx.closePath(); ctx.stroke();
+    ctx.fillStyle = "#059669"; ctx.fillRect(95, h / 2 - 25, 30, 50);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 12px system-ui"; ctx.fillText("BATTERY", 82, h / 2 + 42);
+
+    ctx.beginPath(); ctx.arc(w - 110, h / 2, 24, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(253, 224, 71, ${0.2 + (val / 100) * 0.8})`; ctx.fill(); ctx.strokeStyle = "#eab308"; ctx.stroke();
+
+    ctx.fillStyle = "#f8fafc"; ctx.font = "bold 13px system-ui";
+    ctx.fillText("CIRCUIT & OHM'S LAW WORKBENCH", 15, 25);
+  } else if (topLabMode === "ph") {
+    ctx.fillStyle = "#0f172a"; ctx.fillRect(0, 0, w, h);
+    const ph = (val / 100 * 14);
+    let col = "#10b981";
+    if (ph < 7) col = `rgb(239, ${Math.round(ph * 30)}, 68)`;
+    else col = `rgb(${Math.round(239 - (ph - 7) * 30)}, 68, 239)`;
+
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.moveTo(w / 2 - 25, 85); ctx.lineTo(w / 2 + 25, 85); ctx.lineTo(w / 2 + 65, h - 35); ctx.lineTo(w / 2 - 65, h - 35); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 3; ctx.stroke();
+
+    ctx.fillStyle = "#f8fafc"; ctx.font = "bold 14px system-ui";
+    ctx.fillText(`pH Reaction Level: ${ph.toFixed(1)}`, w / 2 - 65, h - 12);
+    ctx.fillText("ACID-BASE CHEMICAL REACTION LAB", 15, 25);
+  }
+}
+
+/* ---------- Real network send (native WhatsApp/SMS handoff) ---------- */
+function openLink(href) {
+  const a = document.createElement("a");
+  a.href = href; a.target = "_blank"; a.rel = "noopener";
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function waLink(number, text) {
+  const n = (number || "").replace(/[^\d+]/g, "");
+  return `https://wa.me/${n ? n.replace("+", "") : ""}?text=${encodeURIComponent(text)}`;
+}
+function smsLink(number, text) {
+  const n = (number || "").trim();
+  const sep = /iPhone|iPad|iPod/.test(navigator.userAgent) ? "&" : "?";
+  return `sms:${n}${n ? sep : "?"}body=${encodeURIComponent(text)}`;
+}
+function getTeacherContact() { return localStorage.getItem("vp_teacher_contact") || ""; }
+
+/* Init Shell & Boot */
+function initShell() {
+  $$("nav.tabs button[role=tab]").forEach(b => {
+    b.addEventListener("click", () => switchTab(b.id.replace("tab-", "")));
+  });
+}
+
+/* ---------- Pack encode/decode ---------- */
+function b64encode(obj) { return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))); }
+function b64decode(str) { return JSON.parse(decodeURIComponent(escape(atob(str)))); }
+
+function findLessonByAnything(raw) {
+  const code = (raw || "").trim();
+  if (!code) return null;
+  if (code.startsWith("VP1:")) {
+    try { return b64decode(code.slice(4)); } catch (e) { return null; }
+  }
+  const hit = CONFIG.lessons.find(l => l.smsCode.toLowerCase() === code.toLowerCase() || l.id === code);
+  return hit || null;
+}
+
+function saveToLibrary(lesson, code) {
+  const lib = JSON.parse(localStorage.getItem("vp_library") || "[]");
+  if (!lib.find(x => x.id === lesson.id)) {
+    lib.push({ id: lesson.id, subject: lesson.subject, title: (lesson.content.en || Object.values(lesson.content)[0]).title, code });
+    localStorage.setItem("vp_library", JSON.stringify(lib));
+  }
+  renderLibrary();
+}
+
+function renderLibrary() {
+  const lib = JSON.parse(localStorage.getItem("vp_library") || "[]");
+  const el = $("#libList");
+  if (!el) return;
+  el.innerHTML = lib.length ? "" : '<p class="muted">No lessons saved yet — open one above.</p>';
+  lib.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "lib-item";
+    div.innerHTML = `<span class="pill">${esc(item.subject)}</span><strong>${esc(item.title)}</strong>`;
+    const btn = document.createElement("button");
+    btn.className = "btn small"; btn.type = "button"; btn.textContent = "Open →";
+    btn.addEventListener("click", () => { const l = findLessonByAnything(item.code); if (l) openLesson(l, item.code); });
+    div.appendChild(btn);
+    el.appendChild(div);
+  });
+}
+
+/* ---------- Student view ---------- */
+function openLesson(lesson, code) {
+  S.current = lesson; S.lastPack = code;
+  const lang = lesson.content[S.viewLang] ? S.viewLang : Object.keys(lesson.content)[0];
+  const c = lesson.content[lang];
+  $("#viewTitle").textContent = c.title;
+  $("#viewSubject").textContent = lesson.subject;
+  $("#viewExplainer").textContent = c.explainer;
+  $("#viewPoints").innerHTML = c.points.map(p => `<li>${esc(p)}</li>`).join("");
+  const qHost = $("#quizQuestions");
+  qHost.innerHTML = c.questions.map((q, qi) => `
+    <div class="card" style="margin-bottom:10px;">
+      <p style="font-weight:600;">${qi + 1}. ${esc(q.q)}</p>
+      ${q.options.map((o, oi) => `<label style="display:block; margin:4px 0; cursor:pointer;"><input type="radio" name="q${qi}" value="${oi}"> ${esc(o)}</label>`).join("")}
+    </div>`).join("");
+  $("#resultBox").innerHTML = "";
+  $("#lessonView").hidden = false;
+  $("#myLibraryCard").hidden = true;
+  renderDoubts(lesson.id, lang);
+}
+
+function renderDoubts(lessonId, lang) {
+  const host = $("#presetDoubts");
+  const list = CONFIG.doubts[lessonId] || [];
+  host.innerHTML = "";
+  list.forEach(d => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "btn small ghost";
+    b.textContent = lang === "hi" ? d.q_hi : d.q_en;
+    b.addEventListener("click", () => { $("#customDoubtIn").value = lang === "hi" ? d.q_hi : d.q_en; });
+    host.appendChild(b);
+  });
+}
+function buildDoubtMessage() {
+  const q = $("#customDoubtIn").value.trim();
+  if (!q) { toast("Type or pick a doubt first"); return null; }
+  const lessonTag = S.current ? `${(S.current.content.en || Object.values(S.current.content)[0]).title} · ${S.current.smsCode}` : "General";
+  return `VidyaPack doubt [${lessonTag}]: ${q}`;
+}
+function sendDoubt(via) {
+  const msg = buildDoubtMessage(); if (!msg) return;
+  const teacher = getTeacherContact();
+  if (!teacher) {
+    $("#doubtAnsBox").hidden = false;
+    $("#doubtAnsBox").innerHTML = `No teacher number is set up yet. Ask your teacher to open <b>Teacher Studio → Pack Output &amp; Share</b> and enter their WhatsApp/SMS number. Meanwhile, here's your message to send manually:<br><code>${esc(msg)}</code>`;
+    return;
+  }
+  openLink(via === "wa" ? waLink(teacher, msg) : smsLink(teacher, msg));
+  $("#doubtAnsBox").hidden = false;
+  $("#doubtAnsBox").textContent = `Opening ${via === "wa" ? "WhatsApp" : "your SMS app"} with this doubt addressed to your teacher — tap Send there to actually deliver it.`;
+}
+
+$("#backToLib").addEventListener("click", () => { $("#lessonView").hidden = true; $("#myLibraryCard").hidden = false; });
+
+$("#openCode").addEventListener("click", () => {
+  const lesson = findLessonByAnything($("#codeIn").value);
+  if (!lesson) { toast(CONFIG.ui[S.uiLang].invalid); return; }
+  openLesson(lesson, $("#codeIn").value.trim());
+  saveToLibrary(lesson, $("#codeIn").value.trim());
+});
+$("#samplePack").addEventListener("click", () => { $("#codeIn").value = "WC1"; $("#openCode").click(); });
+
+$("#quizForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const lesson = S.current; if (!lesson) return;
+  const total = lesson.answers.length;
+  let score = 0;
+  for (let i = 0; i < total; i++) {
+    const sel = document.querySelector(`input[name="q${i}"]:checked`);
+    if (sel && Number(sel.value) === lesson.answers[i]) score++;
+  }
+  const pct = score / total;
+  const receipt = `VR1:${score}/${total}:${lesson.id}`;
+  $("#resultBox").innerHTML = `<div class="card" style="border-color:${pct >= CONFIG.needsHelpBelow ? 'var(--green)' : 'var(--red)'};">
+    <strong>Score: ${score}/${total}</strong>
+    <p class="muted">Reply-code for your teacher (copy &amp; SMS it back): <code>${receipt}</code></p>
+  </div>`;
+  toast(`Scored ${score}/${total}`);
+});
+
+$("#speakBtn").addEventListener("click", () => {
+  if (!S.current) return;
+  const lang = S.current.content[S.viewLang] ? S.viewLang : "en";
+  const u = new SpeechSynthesisUtterance($("#viewExplainer").textContent);
+  u.lang = (CONFIG.languages.find(l => l.code === lang) || {}).speech || "en-IN";
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+});
+$("#shareBtn").addEventListener("click", () => {
+  if (!S.lastPack) return;
+  openLink(waLink("", `Here's a VidyaPack lesson: ${S.lastPack}`));
+  navigator.clipboard?.writeText(S.lastPack);
+  toast("Opening WhatsApp to forward — code also copied for SMS");
+});
+$("#sendDoubtWa").addEventListener("click", () => sendDoubt("wa"));
+$("#sendDoubtSms").addEventListener("click", () => sendDoubt("sms"));
+
+/* ---------- Teacher Studio ---------- */
+let qBlocks = 0;
+function addQuestionBlock(q) {
+  qBlocks++;
+  const id = qBlocks;
+  const div = document.createElement("div");
+  div.className = "card"; div.dataset.qblock = id;
+  div.innerHTML = `
+    <input class="field qtext" placeholder="Question text" value="${esc(q ? q.q : "")}">
+    ${[0, 1, 2, 3].map(i => `
+      <label style="display:flex; gap:8px; align-items:center; margin:4px 0;">
+        <input type="radio" name="correct${id}" class="qcorrect" value="${i}" ${q && q.correct === i ? "checked" : ""}>
+        <input class="field qopt" style="margin:0;" placeholder="Option ${i + 1}" value="${esc(q ? q.options[i] : "")}">
+      </label>`).join("")}
+    <button type="button" class="btn small ghost" style="margin-top:6px;">✕ Remove question</button>`;
+  div.querySelector("button").addEventListener("click", () => div.remove());
+  $("#qList").appendChild(div);
+}
+$("#addQ").addEventListener("click", () => addQuestionBlock());
+
+$("#startFrom").addEventListener("change", (e) => {
+  const lesson = CONFIG.lessons.find(l => l.id === e.target.value);
+  if (!lesson) return;
+  const c = lesson.content.en;
+  $("#lessonId").value = lesson.id; $("#lessonSms").value = lesson.smsCode; $("#lessonSubject").value = lesson.subject;
+  $("#lTitle").value = c.title; $("#lExplainer").value = c.explainer; $("#lPoints").value = c.points.join("\n");
+  $("#qList").innerHTML = ""; qBlocks = 0;
+  c.questions.forEach((q, i) => addQuestionBlock({ q: q.q, options: q.options, correct: lesson.answers[i] }));
+});
+
+$("#packBtn").addEventListener("click", () => {
+  const id = $("#lessonId").value.trim() || "custom-" + Date.now();
+  const questions = [], answers = [];
+  $$("#qList [data-qblock]").forEach(block => {
+    const opts = $$(".qopt", block).map(i => i.value.trim());
+    const correctEl = block.querySelector(".qcorrect:checked");
+    if (!$(".qtext", block).value.trim() || !correctEl) return;
+    questions.push({ q: $(".qtext", block).value.trim(), options: opts });
+    answers.push(Number(correctEl.value));
+  });
+  const lesson = {
+    id, smsCode: ($("#lessonSms").value.trim() || id).toUpperCase(), subject: $("#lessonSubject").value.trim() || "General",
+    answers,
+    content: { en: { title: $("#lTitle").value.trim() || "Untitled lesson", explainer: $("#lExplainer").value.trim(), points: $("#lPoints").value.split("\n").map(s => s.trim()).filter(Boolean), questions } }
+  };
+  const code = "VP1:" + b64encode(lesson);
+  $("#packOut").value = code;
+  const bytes = new Blob([code]).size;
+  $("#mPackLbl").textContent = bytes + " B";
+  const videoBytes = CONFIG.costModel.videoLessonMB * 1024 * 1024;
+  $("#mPackFill").style.width = Math.min(100, (bytes / videoBytes) * 100 * 40) + "%";
+  const smsCount = Math.max(1, Math.ceil(bytes / CONFIG.costModel.smsPartChars));
+  $("#sSms").textContent = smsCount;
+  $("#sSmaller").textContent = Math.round(videoBytes / bytes) + "×";
+  S._draftLesson = lesson; S._draftCode = code;
+  toast("Pack code generated");
+});
+$("#copyPack").addEventListener("click", () => {
+  if (!$("#packOut").value) return;
+  navigator.clipboard?.writeText($("#packOut").value).then(() => toast(CONFIG.ui[S.uiLang].copied));
+});
+$("#teacherContact").addEventListener("input", (e) => localStorage.setItem("vp_teacher_contact", e.target.value.trim()));
+$("#sharePackWa").addEventListener("click", () => {
+  if (!$("#packOut").value) { toast("Generate a pack first"); return; }
+  openLink(waLink("", `Here's your VidyaPack lesson — paste this into the app: ${$("#packOut").value}`));
+});
+$("#sharePackSms").addEventListener("click", () => {
+  if (!$("#packOut").value) { toast("Generate a pack first"); return; }
+  openLink(smsLink("", $("#packOut").value));
+});
+$("#testPack").addEventListener("click", () => {
+  if (!S._draftLesson) { toast("Generate a pack first"); return; }
+  switchTab("learn");
+  openLesson(S._draftLesson, S._draftCode);
+  saveToLibrary(S._draftLesson, S._draftCode);
+});
+$("#qrPack").addEventListener("click", () => {
+  const slot = $("#qrSlot");
+  if (!$("#packOut").value) { toast("Generate a pack first"); return; }
+  slot.innerHTML = "";
+  if (window.QRCode) {
+    new QRCode(slot, { text: $("#packOut").value, width: 168, height: 168 });
+  } else {
+    slot.innerHTML = '<p class="muted">QR library unavailable offline — share the text code instead.</p>';
+  }
+});
+
+/* ---------- Dashboard ---------- */
+function parseReceipts(text) {
+  return text.split("\n").map(l => l.trim()).filter(Boolean).map(line => {
+    const m = line.match(/(\d+)\s*\/\s*(\d+)(?:\s*:\s*([\w-]+))?/);
+    if (!m) return null;
+    return { score: Number(m[1]), total: Number(m[2]), lessonId: m[3] || "unspecified" };
+  }).filter(Boolean);
+}
+$("#loadSampleReceipts").addEventListener("click", () => {
+  $("#receiptsIn").value = "VR1:4/4:water-cycle-01\nVR1:2/4:water-cycle-01\nVR1:3/4:water-cycle-01\nVR1:1/4:fractions-01\nVR1:4/4:fractions-01";
+});
+$("#clearReceipts").addEventListener("click", () => { $("#receiptsIn").value = ""; $("#dashOut").innerHTML = ""; });
+$("#analyze").addEventListener("click", () => {
+  const rows = parseReceipts($("#receiptsIn").value);
+  if (!rows.length) { toast("No valid receipts found"); return; }
+  const byLesson = {};
+  rows.forEach(r => { (byLesson[r.lessonId] = byLesson[r.lessonId] || []).push(r); });
+  const avgAll = rows.reduce((s, r) => s + r.score / r.total, 0) / rows.length;
+  const needHelp = rows.filter(r => r.score / r.total < CONFIG.needsHelpBelow).length;
+  let html = `<div class="card"><h3>Overall</h3><p>${rows.length} responses · Class average <b>${Math.round(avgAll * 100)}%</b> · <span class="status ${needHelp ? 'help' : 'ok'}">${needHelp} student(s) below ${Math.round(CONFIG.needsHelpBelow * 100)}%</span></p></div>`;
+  html += `<div class="card"><div class="table-wrap"><table><thead><tr><th>Lesson</th><th>Responses</th><th>Average</th></tr></thead><tbody>`;
+  Object.keys(byLesson).forEach(lid => {
+    const rs = byLesson[lid];
+    const avg = rs.reduce((s, r) => s + r.score / r.total, 0) / rs.length;
+    html += `<tr><td>${esc(lid)}</td><td>${rs.length}</td><td>${Math.round(avg * 100)}% <span class="mini-bar"><i style="width:${Math.round(avg * 100)}%"></i></span></td></tr>`;
+  });
+  html += `</tbody></table></div></div>`;
+  $("#dashOut").innerHTML = html;
+});
+
+/* ---------- Doubts Inbox (teacher side) ---------- */
+function parseDoubtMessages(text) {
+  const re = /VidyaPack doubt \[([^\]]+)\]:\s*(.+)/g;
+  const out = []; let m;
+  while ((m = re.exec(text))) out.push({ tag: m[1], question: m[2].trim() });
+  return out;
+}
+$("#parseDoubts").addEventListener("click", () => {
+  const found = parseDoubtMessages($("#doubtsIn").value);
+  const host = $("#doubtsOut");
+  if (!found.length) { host.innerHTML = '<p class="muted">No VidyaPack-tagged doubts found in that text.</p>'; return; }
+  host.innerHTML = found.map(f => `<div class="lib-item"><span class="pill">${esc(f.tag)}</span><span>${esc(f.question)}</span></div>`).join("");
+});
+$("#clearDoubts").addEventListener("click", () => { $("#doubtsIn").value = ""; $("#doubtsOut").innerHTML = ""; });
+
+function renderDoubtBank() {
+  const host = $("#doubtBankOut");
+  let html = "";
+  Object.keys(CONFIG.doubts).forEach(lid => {
+    const lesson = CONFIG.lessons.find(l => l.id === lid);
+    html += `<p style="margin:10px 0 4px 0;"><strong>${esc(lesson ? lesson.content.en.title : lid)}</strong></p>`;
+    CONFIG.doubts[lid].forEach(d => {
+      html += `<div class="lib-item"><span>❓ ${esc(d.q_en)}</span><span class="muted">${esc(d.a_en)}</span></div>`;
+    });
+  });
+  host.innerHTML = html;
+}
+
+/* ---------- Translation Strings ---------- */
+const L = {
+  en: {
+    tagline:"Whole lessons that travel over SMS, WhatsApp or QR — offline with zero data cost",
+    track:"TRACK 3 · EDUCATION FOR ALL", hide:"✕ Hide", guide:"How VidyaPack Works (3 Simple Steps)",
+    s1:"1. Create or Pick a Lesson", s1d:"Teachers write a short lesson. It turns into a tiny text code.",
+    s2:"2. Send to Students", s2d:"Share via SMS, WhatsApp or QR code — works on ANY phone with ZERO data cost!",
+    s3:"3. Students Read & Answer", s3d:"Students read offline, answer questions, and reply to auto-grade!",
+    lab:"3D Virtual Science Lab Workbench", featured:"Featured Lab",
+    labd:"Interactive hands-on science experiments for students and teachers — works 100% offline with zero mobile data!",
+    water:"🧪 Water Cycle", circuit:"⚡ Circuit & Ohm's Law", ph:"🧪 Acid-Base pH Test",
+    heat:"Burner Heat (°C):", battery:"Battery Voltage (V):", reagent:"Reagent Dropper (pH):", run:"▶️ Run Reaction",
+    teacher:"Teacher Studio", student:"Student App", dash:"Class Dashboard",
+    editor:"Lesson Editor", create:"Create or edit a lesson pack below:", sample:"Start from sample",
+    id:"Lesson ID", sms:"SMS Shortcode", subject:"Subject & Class", title:"Lesson Title",
+    explainer:"Main Explainer Text", points:"Key Takeaway Points (one per line)", quiz:"Quiz Questions",
+    add:"+ Add Question", generate:"⚡ Generate Pack Code", output:"Pack Output & Share",
+    send:"Send this text code or QR code to students:", copy:"📋 Copy Code", qr:"📷 Show QR Code", test:"🧪 Test in Student View",
+    savings:"Data Cost Savings Meter", smsmsgs:"SMS Messages", smaller:"Smaller than Video",
+    paste:"📥 Paste the code your teacher sent you", pasted:"Paste the code (starting with VP1:) to open your lesson offline:",
+    open:"🚀 Open Lesson from Teacher", try:"✨ Try Sample Lesson", library:"📚 Saved Offline Lessons",
+    back:"← Back to library", read:"🔊 Read Aloud", share:"📤 Share Onward", check:"Check Answers & Get Score",
+    doubt:"Send a Doubt to Your Teacher", doubtd:"Pick a common question or type your own — it sends as a real WhatsApp or SMS message to your teacher's phone.",
+    results:"Class Results & Reach Analytics",
+    resultsd:"Paste student grade receipts or SMS reply messages below to analyze class performance:",
+    analyze:"📊 Analyze Class Results", load:"✨ Load Sample Data", clear:"Clear",
+    low:"Low-resource mode", copied:"Copied to clipboard!", invalid:"Invalid code!", generated:"Pack code generated!",
+    changed:"Language changed."
+  },
+  hi: {
+    tagline:"SMS, WhatsApp या QR से पूरे पाठ — बिना डेटा खर्च के ऑफलाइन सीखें",
+    track:"ट्रैक 3 · सभी के लिए शिक्षा", hide:"✕ छिपाएँ", guide:"VidyaPack कैसे काम करता है (3 आसान चरण)",
+    s1:"1. पाठ बनाएँ या चुनें", s1d:"शिक्षक छोटा पाठ लिखते हैं। यह छोटे टेक्स्ट कोड में बदल जाता है।",
+    s2:"2. छात्रों को भेजें", s2d:"SMS, WhatsApp या QR कोड से साझा करें — बिना डेटा खर्च के किसी भी फोन पर काम करता है!",
+    s3:"3. छात्र पढ़ें और उत्तर दें", s3d:"छात्र ऑफलाइन पढ़ते हैं, सवालों के जवाब देते हैं और ऑटो-ग्रेड के लिए भेजते हैं!",
+    lab:"3D वर्चुअल साइंस लैब वर्कबेंच", featured:"विशेष लैब",
+    labd:"छात्रों और शिक्षकों के लिए इंटरैक्टिव विज्ञान प्रयोग — 100% ऑफलाइन और बिना मोबाइल डेटा!",
+    water:"🧪 जल चक्र", circuit:"⚡ सर्किट और ओम का नियम", ph:"🧪 अम्ल-क्षार pH परीक्षण",
+    heat:"बर्नर ताप (°C):", battery:"बैटरी वोल्टेज (V):", reagent:"रीएजेंट ड्रॉपर (pH):", run:"▶️ प्रयोग चलाएँ",
+    teacher:"शिक्षक स्टूडियो", student:"छात्र ऐप", dash:"कक्षा डैशबोर्ड",
+    editor:"पाठ संपादक", create:"नीचे पाठ पैक बनाएँ या संपादित करें:", sample:"नमूने से शुरू करें",
+    id:"पाठ ID", sms:"SMS शॉर्टकोड", subject:"विषय और कक्षा", title:"पाठ का शीर्षक",
+    explainer:"मुख्य व्याख्या", points:"मुख्य बिंदु (हर पंक्ति में एक)", quiz:"क्विज़ प्रश्न",
+    add:"+ प्रश्न जोड़ें", generate:"⚡ पैक कोड बनाएँ", output:"पैक आउटपुट और साझा करें",
+    send:"यह टेक्स्ट कोड या QR कोड छात्रों को भेजें:", copy:"📋 कोड कॉपी करें", qr:"📷 QR कोड दिखाएँ", test:"🧪 छात्र दृश्य में जाँचें",
+    savings:"डेटा खर्च बचत मीटर", smsmsgs:"SMS संदेश", smaller:"वीडियो से छोटा",
+    paste:"📥 शिक्षक द्वारा भेजा गया कोड पेस्ट करें", pasted:"कोड (VP1: से शुरू) पेस्ट करें और पाठ ऑफलाइन खोलें:",
+    open:"🚀 शिक्षक का पाठ खोलें", try:"✨ नमूना पाठ आज़माएँ", library:"📚 सेव किए गए ऑफलाइन पाठ",
+    back:"← लाइब्रेरी पर वापस", read:"🔊 ज़ोर से पढ़ें", share:"📤 आगे साझा करें", check:"उत्तर जाँचें और स्कोर पाएँ",
+    doubt:"शिक्षक को सवाल भेजें", doubtd:"कोई सामान्य सवाल चुनें या अपना सवाल लिखें — यह असली WhatsApp या SMS संदेश के रूप में आपके शिक्षक के फोन पर भेजा जाता है।",
+    results:"कक्षा परिणाम और पहुँच विश्लेषण",
+    resultsd:"कक्षा के प्रदर्शन का विश्लेषण करने के लिए छात्र ग्रेड रसीद या SMS उत्तर यहाँ पेस्ट करें:",
+    analyze:"📊 कक्षा परिणाम देखें", load:"✨ नमूना डेटा लोड करें", clear:"साफ़ करें",
+    low:"कम-संसाधन मोड", copied:"क्लिपबोर्ड पर कॉपी हो गया!", invalid:"गलत कोड!", generated:"पैक कोड बन गया!",
+    changed:"भाषा बदल दी गई।"
+  }
+};
+
+/* ---------- Language Helper Functions ---------- */
+const tr = (k) => (L[S.uiLang] && L[S.uiLang][k]) || L.en[k] || k;
+const set = (sel, key) => { const e = $(sel); if(e) e.textContent = tr(key); };
+const setHTML = (sel, html) => { const e = $(sel); if(e) e.innerHTML = html; };
+
+/* ---------- Apply Language to All UI ---------- */
+function applyLanguage() {
+  document.documentElement.lang = S.uiLang;
+
+  set("#appTagline", "tagline");
+  set("#trackBadge", "track");
+  set(".quick-guide-card h2 span:last-child", "guide");
+  set(".quick-guide-card button", "hide");
+  set(".step-box:nth-child(1) h4", "s1");
+  set(".step-box:nth-child(1) p", "s1d");
+  set(".step-box:nth-child(2) h4", "s2");
+  set(".step-box:nth-child(2) p", "s2d");
+  set(".step-box:nth-child(3) h4", "s3");
+  set(".step-box:nth-child(3) p", "s3d");
+
+  const labH = $("section.card h2");
+  if (labH) {
+    const spans = labH.querySelectorAll("span");
+    if (spans[1]) spans[1].textContent = tr("lab");
+    if (spans[2]) spans[2].textContent = tr("featured");
+  }
+  const labP = $("section.card p[style*='margin:0 0 14px']");
+  if (labP) labP.textContent = tr("labd");
+
+  set("#tab-studio", "teacher");
+  set("#tab-learn", "student");
+  set("#tab-dash", "dash");
+  set("#panel-studio .card:first-child h2", "editor");
+  set("#panel-studio .card:first-child p.muted", "create");
+  set('label[for="startFrom"]', "sample");
+  set('label[for="lessonId"]', "id");
+  set('label[for="lessonSms"]', "sms");
+  set('label[for="lessonSubject"]', "subject");
+  set('label[for="lTitle"]', "title");
+  set('label[for="lExplainer"]', "explainer");
+  set('label[for="lPoints"]', "points");
+  set("#panel-studio h3", "quiz");
+  set("#addQ", "add");
+  set("#packBtn", "generate");
+  set("#panel-studio .card:nth-child(2) h2", "output");
+  set("#panel-studio .card:nth-child(2) p.muted", "send");
+  set("#copyPack", "copy");
+  set("#qrPack", "qr");
+  set("#testPack", "test");
+  set("#panel-learn > .card h3", "paste");
+  set("#panel-learn > .card p.muted", "pasted");
+  set("#openCode", "open");
+  set("#samplePack", "try");
+  set("#myLibraryCard h3", "library");
+  set("#backToLib", "back");
+  set("#lessonView h3", "quiz");
+  set("#doubtSection h3 span:last-child", "doubt");
+  set("#doubtSection p", "doubtd");
+  set("#panel-dash h2", "results");
+  set("#panel-dash p.muted", "resultsd");
+  set("#analyze", "analyze");
+  set("#loadSampleReceipts", "load");
+  set("#clearReceipts", "clear");
+  set("#quizForm button", "check");
+
+  localStorage.setItem("vidyapack-lang", S.uiLang);
+
+  if (S.current) openLesson(S.current, S.lastPack);
+}
+
+/* ---------- Language / low-res ---------- */
+function initLangAndModes() {
+  const sel = $("#uiLang");
+  sel.innerHTML = CONFIG.languages.map(l => `<option value="${l.code}">${l.name}</option>`).join("");
+
+  const savedLang = localStorage.getItem("vidyapack-lang") || CONFIG.defaultUiLang;
+  S.uiLang = savedLang;
+  S.viewLang = savedLang;
+  sel.value = savedLang;
+
+  applyLanguage();
+
+  sel.addEventListener("change", () => {
+    S.uiLang = sel.value;
+    S.viewLang = sel.value;
+    applyLanguage();
+    toast(tr("changed"));
+  });
+
+  const startFrom = $("#startFrom");
+  startFrom.innerHTML = '<option value="">— choose —</option>' + CONFIG.lessons.map(l => `<option value="${l.id}">${esc(l.content.en.title)}</option>`).join("");
+
+  $("#lowres").addEventListener("change", (e) => {
+    document.body.classList.toggle("lowres", e.target.checked);
+    if (e.target.checked) cancelAnimationFrame(topLabAnimId); else startTopLabLoop();
+  });
+}
+
+initShell();
+initLangAndModes();
+renderLibrary();
+renderDoubtBank();
+$("#teacherContact").value = getTeacherContact();
+initTopVirtualLab();
+</script>
+</body>
+</html>
