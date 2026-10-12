@@ -1,4 +1,4 @@
-## VidyaPack
+# VidyaPack
 
 **Whole lessons that travel over SMS, WhatsApp, or QR — offline, at zero data cost.**
 
@@ -39,8 +39,8 @@ Millions of students miss school regularly due to distance, lack of transport, i
 ## Running Locally
 
 ```bash
-git clone <this-repo-url>
-cd <repo-folder>
+git clone https://github.com/SenCruCiAl/Vidyapack-Education_platform.git
+cd Vidyapack-Education_platform
 python -m http.server 8000
 ```
 Then open `http://localhost:8000/index.html` in your browser.
